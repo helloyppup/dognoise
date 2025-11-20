@@ -40,6 +40,7 @@ class DogPoolManager:
         dog=self.active_dog.get(dog_name)
         if not dog:
             logger.warning(f"<<dog不存在>>{dog_name} <无法停止运行>")
+            return
 
         file_path = dog.stop()
 
