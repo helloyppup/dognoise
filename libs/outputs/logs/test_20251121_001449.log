@@ -1,0 +1,59 @@
+[2025-11-21 00:14:49] [INFO] [conftest.py:13] - >>> [Fixture] 初始化测试环境 (Context) ...
+[2025-11-21 00:14:49] [INFO] [runner.py:22] - 正在扫描所有ball:E:\project\Dognoise\Dognoise\actions
+[2025-11-21 00:14:49] [INFO] [runner.py:36] - scan完成，找到3球球🥎
+[2025-11-21 00:14:49] [INFO] [test_demo.py:14] - === 开始执行业务流测试 ===
+[2025-11-21 00:14:49] [INFO] [dogPool.py:23] - 🐕‍🦺🐕‍🦺 [dog出动] Dog 已启动...
+[2025-11-21 00:14:49] [INFO] [runner.py:51] - 开始执行：connect_devices -> E:\project\Dognoise\Dognoise\actions\common\connect_devices.py
+[2025-11-21 00:14:49] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:49] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:49] [INFO] [connect_devices.py:6] - ---球球run：检查设备连接 ---
+[2025-11-21 00:14:49] [INFO] [adb_manager.py:10] - 执行命令: adb devices
+[2025-11-21 00:14:49] [INFO] [adb_manager.py:40] - 当前设备列表:
+List of devices attached
+[2025-11-21 00:14:49] [WARNING] [connect_devices.py:25] - ADB服务正常，但没有连接任何设备！
+[2025-11-21 00:14:49] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:49] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:50] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:50] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:50] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:50] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:51] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:51] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:51] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:51] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:52] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:52] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:52] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:52] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:53] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:53] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:53] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:53] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:54] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:54] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:54] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:54] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:55] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:55] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:55] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:55] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:56] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:56] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:56] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:56] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:57] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:57] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:57] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:57] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:58] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:58] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:58] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:58] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:59] [INFO] [chaos_dog.py:13] - 狗狗跑过来🐩🐩🐩
+[2025-11-21 00:14:59] [INFO] [chaos_dog.py:14] - 🐕️🐕️🐕️狗狗跑过去
+[2025-11-21 00:14:59] [INFO] [dogPool.py:30] - 🐕‍🦺🐕‍🦺 [收狗] Dog 循环结束。
+[2025-11-21 00:14:59] [WARNING] [test_demo.py:29] - 设备检查未通过，但在演示模式下我们继续...
+[2025-11-21 00:14:59] [INFO] [runner.py:51] - 开始执行：hello_pupply -> E:\project\Dognoise\Dognoise\actions\common\hello_pupply.py
+[2025-11-21 00:14:59] [INFO] [hello_pupply.py:6] - >>> 正在执行 hello_pupply
+[2025-11-21 00:14:59] [INFO] [test_demo.py:34] - === 业务流测试结束 ===
+[2025-11-21 00:14:59] [INFO] [conftest.py:22] - >>> [Fixture] 测试结束，环境清理 ...
