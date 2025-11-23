@@ -11,7 +11,7 @@ class ADBManager:
         """
         self.device_id = device_id
         # 如果是IP设备，记录下来以便断线重连
-        self.is_network_device = "192." in device_id if device_id else False
+        self.is_network_device = "." in device_id if device_id else False
 
     def run_cmd(self, cmd, retry=1):
         """
@@ -39,12 +39,12 @@ class ADBManager:
                     logger.warning(f"⚠️ 设备连接异常 ({error_msg})，尝试重连...")
                     self.reconnect()
                 else:
-                    logger.error(f"❌ 命令失败: {result.stderr.strip()}")
+                    logger.error(f"命令失败: {result.stderr.strip()}")
                     # 非连接错误，直接返回，不重试
                     return None
 
             except Exception as e:
-                logger.error(f"❌ 执行异常: {e}")
+                logger.error(f" 执行异常: {e}")
 
             # 如果是最后一次循环还没成功，就不用 sleep 了
             if i < retry:

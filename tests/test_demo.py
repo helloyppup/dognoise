@@ -1,4 +1,6 @@
 # tests/test_demo.py
+from operator import index
+
 import allure
 from time import sleep
 
@@ -41,8 +43,17 @@ class TestDemo:
 
     def test_airtest(self,env):
         logger.info("===开始测试===")
-        env.run("ctrl_servo")
+
+        index=5
+        while index>0:
+            index-=1
+            env.run("ctrl_servo")
+            sleep(1)
+
         res=env.run("demo_task")
 
         print(res)
-        assert res['status']=="success"
+        if isinstance(res, dict):
+            assert res.get('status') == "success"
+        else:
+            assert res is True

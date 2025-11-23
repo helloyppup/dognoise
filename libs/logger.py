@@ -54,15 +54,15 @@ def get_logger(name="LegoFramework"):
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
-        # 3. 处理器A：输出到控制台（屏幕）
+        #  处理器A：输出到控制台（屏幕）
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
-        # 1. 先执行清理工作
+        # 先执行清理工作
         cleanup_old_logs(max_keep=50)
 
-        # 2. 生成精确到秒的时间戳
+        # 生成精确到秒的时间戳
         timestamp = time.strftime('%Y%m%d_%H%M%S')
         log_filename = f'test_{timestamp}.log'
         file_path = os.path.join(LOG_DIR, log_filename)
