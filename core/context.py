@@ -36,8 +36,12 @@ class TestContext:
 
 
     @cached_property
-    def adb(self,ip):
-        return ADBManager(ip)
+    def adb(self):
+        if not self.adb_pool:
+            # 如果池子是空的，返回一个默认的（操作本地第一台）
+            return ADBManager()
+            # 返回字典里的第一个值
+        return next(iter(self.adb_pool.values()))
 
     @cached_property
     def runner(self):

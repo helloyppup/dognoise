@@ -51,7 +51,10 @@ class AirRunner:
         logger.info(f"执行 Airtest: {keyword} -> {script_path}")
 
         try:
-            # 1. 环境初始化 (连接设备)
+            # 环境初始化 (连接设备)
+            # 触发懒加载，进行adb连接
+            _ = self.context.adb_pool
+            self.context.adb_pool['main_phone'].connect()
             # 从 config 读取主设备，如果没有就默认本地
             dev_id = self.context.config.get("adb_devices", {}).get("main_phone", "")
             connect_str = f"Android:///{dev_id}" if dev_id else "Android:///"
