@@ -3,6 +3,7 @@ import sys
 import importlib
 from airtest.core.api import auto_setup, using
 from libs.logger import logger
+import builtins
 
 
 class AirRunner:
@@ -62,10 +63,12 @@ class AirRunner:
             # basedir 设置为脚本所在目录，方便脚本里引用图片
             auto_setup(__file__, devices=[connect_str], logdir=True, project_root=self.scripts_dir)
 
-            # 2. 加载路径 (using)
+            # builtins.env = self.context
+
+            # 加载路径 (using)
             using(script_path)
 
-            # 3. 导入/重载模块
+            # 导入/重载模块
             # Airtest 脚本本质是 Python 模块，名字就是文件夹名去掉 .air
             module_name = keyword
 
@@ -79,8 +82,11 @@ class AirRunner:
             # 更新缓存（虽然对 reload 来说不需要，但保持一致性）
             self.module_cache[keyword] = air_module
 
-            logger.info(f"✅ Airtest 脚本 [{keyword}] 执行完毕")
-            return True
+            result=getattr(air_module, "__retval__",True)
+
+
+            logger.info(f"✅ Airtest 脚本 [{keyword}] 执行完毕,执行结果{result}")
+            return result
 
         except Exception as e:
             logger.error(f"Airtest 脚本 [{keyword}] 执行崩溃: {e}")

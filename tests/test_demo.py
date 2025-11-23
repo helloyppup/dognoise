@@ -42,6 +42,7 @@ class TestDemo:
     def test_airtest(self,env):
         logger.info("===开始测试===")
         env.run("ctrl_servo")
-        env.run("test")
+        res=env.run("demo_task")
 
-        print(1)
+        print(res)
+        assert res['status']=="success"
