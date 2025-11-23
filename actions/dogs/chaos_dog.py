@@ -3,7 +3,7 @@ import time
 import random
 from time import sleep
 
-from libs.dogPool import BaseDog
+from libs.baseDog import BaseDog
 from libs.logger import logger
 
 class Dog(BaseDog):

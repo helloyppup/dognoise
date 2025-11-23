@@ -21,13 +21,25 @@ class BaseDog(threading.Thread):
         线程启动后自动运行这里
         """
         logger.info(f"🐕‍🦺🐕‍🦺 [dog出动] {self.__class__.__name__} 已启动...")
+        error_count = 0
         while not self._stop_event.is_set():
             try:
                 self.working()  # 调用子类的动作
+                error_count =0
             except Exception as e:
-                logger.error(f"🐕‍🦺🐕‍🦺 [dog出错] {e}")
-                time.sleep(1)  # 出错休息一下防止刷屏
+                error_count += 1
+                wait_time=min(60,1*(2**(error_count-1)))
+                logger.error(f"🐕‍🦺🐕‍🦺 [Dog出错，第{error_count}次重试，等待 {wait_time}s: {e}")
+                self.interruptible_sleep(wait_time)  # 出错休息一下防止刷屏
         logger.info(f"🐕‍🦺🐕‍🦺 [收狗] {self.__class__.__name__} 循环结束。")
+
+    def interruptible_sleep(self, seconds):
+        """
+        可中断的睡眠：如果在睡眠期间收到 stop 信号，会立即醒来。
+        返回 True 表示是因为收到信号而醒来（被叫醒），False 表示睡够了自然醒。
+        """
+        return self._stop_event.wait(timeout=seconds)
+
 
     def stop(self):
         """

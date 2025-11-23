@@ -13,14 +13,14 @@ from libs.logger import logger
 def test_workflow(env):
     logger.info("=== 开始执行业务流测试 ===")
     # 启动烦人狗
-    env.dogs.start("chaos_dog", interval=0.5)
+    env.start("chaos_dog", interval=0.5)
 
     # 1. 调用：连接设备
     # 我们不需要知道 connect_device.py 在哪个文件夹，只要喊名字
     result = env.run("connect_devices")
     sleep(10)
 
-    env.dogs.stop("chaos_dog")
+    env.stop("chaos_dog")
 
     # 2. 根据积木的返回值做断言
     if result:
