@@ -1,2 +1,4 @@
-# 在这里写你的依赖，例如：
-# pytest
+pytest
+allure-pytest
+pyserial
+PyYAML

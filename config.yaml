@@ -1,0 +1,21 @@
+# config.yaml
+
+project_name: "Dognoise"
+
+# 串口池：给每个串口起个名字，方便代码里调用
+serials:
+  # 名字: {参数}
+  nano:
+    port: "COM5"
+    baudrate: 9600
+    timeout: 1
+
+  esp32_logger:
+    port: "COM5"
+    baudrate: 115200
+    timeout: 2
+
+# ADB设备池
+adb_devices:
+  main_phone: "192.168.1.101"
+  sub_phone: "192.168.1.102"

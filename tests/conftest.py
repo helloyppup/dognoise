@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from core.context import TestContext
 from libs.logger import logger
@@ -23,3 +25,26 @@ def env():
     if hasattr(context, "dogs"):
         context.dogs.stop_all()
     # 这里以后可以写：断开ADB连接、生成最终报告等
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    当整个测试会话结束（所有用例跑完）时，自动调用此钩子。
+    我们在这里执行 allure generate 命令。
+    """
+    logger.info("正在生成 Allure HTML 报告快照...")
+
+    # 1. 定义源数据目录 (和你 pytest.ini 里配置的一致)
+    source_dir = "./outputs/allure_results"
+
+    # 2. 定义快照存放目录 (每次运行都会覆盖这个文件夹)
+    report_dir = "./outputs/allure_report"
+
+    # 3. 调用系统命令生成报告
+    # --clean 表示生成前清空 report_dir，保证是最新快照
+    exit_code = os.system(f"allure generate {source_dir} -o {report_dir} --clean")
+
+    if exit_code == 0:
+        logger.info(f"✨ 报告快照已生成！请打开: {report_dir}/index.html")
+    else:
+        logger.error("❌ 报告生成失败，请检查是否安装了 Allure 命令行工具。")

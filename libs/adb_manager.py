@@ -1,41 +1,125 @@
 import subprocess
-from libs.logger import logger  # 引入刚才写的日志工具
+import time
+import os
+from libs.logger import logger
 
 
 class ADBManager:
-    def run_cmd(self, cmd):
+    def __init__(self, device_id=None):
         """
-        内部函数：专门用来执行 Shell 命令，并获取结果
+        :param device_id: 设备序列号或IP (例如 "192.168.1.101" 或 "emulator-5554")
         """
-        logger.info(f"执行命令: {cmd}")  # 记录我们干了什么
+        self.device_id = device_id
+        # 如果是IP设备，记录下来以便断线重连
+        self.is_network_device = ":" in device_id if device_id else False
 
-        # subprocess 是 Python 用来调用系统命令的模块
-        # capture_output=True 表示我们要把命令的输出抓回来，而不是直接丢到屏幕上
-        # text=True 表示结果是字符串，不是二进制
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-
-        if result.returncode != 0:
-            logger.error(f"命令执行失败: {result.stderr}")
-            return None
-
-        return result.stdout.strip()
-
-    def connect(self, ip_address):
+    def run_cmd(self, cmd, retry=1):
         """
-        连接指定设备的公共方法
+        执行 ADB 命令（带重试机制）
+        :param cmd: 要执行的命令 (不含 'adb', 例如 'shell ls')
+        :param retry: 失败重试次数，默认 1 次
         """
-        output = self.run_cmd(f"adb connect {ip_address}")
-        if output and "connected" in output:
-            logger.info(f"成功连接到设备: {ip_address}")
+        # 1. 组装命令前缀
+        prefix = f"adb -s {self.device_id}" if self.device_id else "adb"
+        full_cmd = f"{prefix} {cmd}"
+
+        for i in range(retry + 1):
+            try:
+                logger.info(f"执行: {full_cmd}")
+                # 使用 subprocess 执行
+                result = subprocess.run(full_cmd, shell=True, capture_output=True, text=True)
+
+                # 检查结果
+                if result.returncode == 0:
+                    return result.stdout.strip()
+
+                # 错误处理与重连判定
+                error_msg = result.stderr.lower()
+                if "device not found" in error_msg or "offline" in error_msg:
+                    logger.warning(f"⚠️ 设备连接异常 ({error_msg})，尝试重连...")
+                    self.reconnect()
+                else:
+                    logger.error(f"❌ 命令失败: {result.stderr.strip()}")
+                    # 非连接错误，直接返回，不重试
+                    return None
+
+            except Exception as e:
+                logger.error(f"❌ 执行异常: {e}")
+
+            # 如果是最后一次循环还没成功，就不用 sleep 了
+            if i < retry:
+                time.sleep(2)
+
+        return None
+
+    def reconnect(self):
+        """
+        尝试恢复连接：重启 Server -> 重连网络设备
+        """
+        logger.info("执行 ADB 重连流程...")
+
+        # 1. 暴力重启 ADB Server
+        subprocess.run("adb kill-server", shell=True)
+        time.sleep(1)
+        subprocess.run("adb start-server", shell=True)
+        time.sleep(2)
+
+        # 2. 如果是网络设备，重新 connect
+        if self.is_network_device and self.device_id:
+            logger.info(f"正在重新连接网络设备: {self.device_id}")
+            # 这里调用原生 adb connect，不走 self.run_cmd 避免死循环
+            subprocess.run(f"adb connect {self.device_id}", shell=True)
+            time.sleep(2)  # 等待连接建立
+
+    # ================= 常用快捷指令 =================
+
+    def shell(self, cmd):
+        """
+        执行 shell 命令 (自动添加 'shell' 前缀)
+        用法: env.adb.shell("ls /sdcard")
+        """
+        return self.run_cmd(f"shell {cmd}")
+
+    def get_logcat(self, output_path, grep=None):
+        """
+        抓取当前缓冲区日志并保存
+        :param output_path: 保存路径
+        :param grep: 过滤关键字 (可选)
+        """
+        cmd = "logcat -d"  # -d 表示 dump 当前日志后退出，不阻塞
+        if grep:
+            cmd += f" | grep '{grep}'"
+
+        # 将日志重定向到文件
+        full_cmd = f"{cmd} > {output_path}"
+        # 注意：这里涉及到重定向 >，建议直接用 shell=True 的 run_cmd
+        # 但由于 run_cmd 内部是 subprocess.run，重定向在某些系统可能需要特殊处理
+        # 先获取内容再写文件
+
+        content = self.run_cmd(cmd)
+        if content:
+            with open(output_path, "w", encoding="utf-8", errors="ignore") as f:
+                f.write(content)
+            logger.info(f"Logcat 已保存: {output_path}")
+            return True
+        return False
+
+    def ping_gateway(self, target="8.8.8.8", count=4):
+        """
+        让手机 ping 外部地址
+        """
+        logger.info(f"🌏 正在 Ping {target}...")
+        # Android 的 ping 默认是不停的，必须加 -c 限制次数
+        output = self.shell(f"ping -c {count} {target}")
+
+        if output and "0% packet loss" in output:
+            logger.info("✅ 网络通畅")
             return True
         else:
-            logger.error(f"连接设备失败: {ip_address}")
+            logger.warning("❌ 网络不通或有丢包")
             return False
 
-    def get_devices(self):
-        """
-        查看当前连接的设备列表
-        """
-        output = self.run_cmd("adb devices")
-        logger.info(f"当前设备列表:\n{output}")
-        return output
+    def connect(self):
+        """手动连接 (初始化用)"""
+        if self.is_network_device:
+            self.run_cmd(f"connect {self.device_id}")
