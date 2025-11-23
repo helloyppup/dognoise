@@ -1,18 +1,15 @@
 # tests/test_demo.py
 import allure
-from tornado.gen import sleep
-
-from libs.adb_manager import ADBManager
-from libs.logger import logger
+from time import sleep
 
 import pytest
-from core.runner import RunnerDog
-from time import sleep
+
 from libs.logger import logger
 
 @allure.epic("这是一个快速的测试")
 @allure.feature("进行一些示例")
 class TestDemo:
+    @pytest.mark.skip
     @allure.story("多模块放狗")
     @allure.description("这是一个演示用例：同时启动干扰狗，并检查ADB连接状态。")
     @allure.severity(allure.severity_level.CRITICAL)  # 设置严重等级
@@ -41,3 +38,10 @@ class TestDemo:
 
         logger.info("=== 业务流测试结束 ===")
 
+
+    def test_airtest(self,env):
+        logger.info("===开始测试===")
+        env.run("ctrl_servo")
+        env.run("test")
+
+        print(1)

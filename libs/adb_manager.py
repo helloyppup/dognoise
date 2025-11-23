@@ -11,7 +11,7 @@ class ADBManager:
         """
         self.device_id = device_id
         # 如果是IP设备，记录下来以便断线重连
-        self.is_network_device = ":" in device_id if device_id else False
+        self.is_network_device = "192." in device_id if device_id else False
 
     def run_cmd(self, cmd, retry=1):
         """

@@ -1,6 +1,7 @@
 # 核心上下文
 import os
 
+from core.air_runner import AirRunner
 from libs.logger import logger
 from libs.adb_manager import ADBManager
 from core.runner import RunnerDog
@@ -35,8 +36,8 @@ class TestContext:
 
 
     @cached_property
-    def adb(self):
-        return ADBManager()
+    def adb(self,ip):
+        return ADBManager(ip)
 
     @cached_property
     def runner(self):
@@ -96,14 +97,33 @@ class TestContext:
         # 返回字典里的第一个 value
         return next(iter(self.serials.values()))
 
+    @cached_property
+    def air(self):
+        """
+        Airtest 脚本执行引擎
+        用法: env.air.run("login")
+        """
+        return AirRunner(self)
 
-    def run(self, keyword):
-        """
-        调用env.run() 实际上调用扫描狗 把自己（整个实例）作为context传入
-        :param keyword:
-        :return:
-        """
-        return self.runner.run(keyword)
+
+    def run(self, keyword,**kwargs):
+        if keyword in self.runner.action_map:
+            # 如果有传参，临时存入 data
+            if kwargs:
+                self.data.update(kwargs)
+            return self.runner.run(keyword)
+
+        #查找 Airtest 脚本 (AirRunner)
+        # AirRunner 初始化时会扫描文件夹并存入 script_map
+        if keyword in self.air.script_map:
+            # Airtest 脚本通常依赖 context.data 传参
+            if kwargs:
+                self.data.update(kwargs)
+            return self.air.run(keyword)
+
+
+        self.logger.error(f" 找不到积木: [{keyword}] (未在 actions/ 或 air_scripts/ 中发现)")
+        return False
 
     def start(self, keyword,**kwargs):
         """

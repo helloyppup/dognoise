@@ -17,5 +17,4 @@ serials:
 
 # ADB设备池
 adb_devices:
-  main_phone: "192.168.1.101"
-  sub_phone: "192.168.1.102"
+  main_phone: "192.168.0.100:39925"
