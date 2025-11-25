@@ -65,6 +65,7 @@ class AirRunner:
 
             # 全局可用env变量 但是只建议在air脚本用
             builtins.env = self.context
+            builtins.args = kwargs
 
             # 加载路径 (using)
             using(script_path)
