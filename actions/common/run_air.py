@@ -1,7 +1,7 @@
 from libs.logger import logger
 
 
-def run(context):
+def run(context,**kwargs):
     """
     Airtest 通用积木：从 data 中读取名字并运行
     """

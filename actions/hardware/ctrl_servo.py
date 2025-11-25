@@ -1,10 +1,10 @@
 from libs.servo_kit import ServoKit
 
-def run(context):
-    svr=context.serials.get('nano')
+def run(context,serials_name='nano'):
+    svr=context.serials.get(serials_name)
 
     if not svr:
-        context.logger.error("❌ 找不到 nano_board 串口，请检查 config.yaml")
+        context.logger.error(f"❌ 找不到 {serials_name} 串口，请检查 config.yaml")
         return False
 
     bot=ServoKit(svr)

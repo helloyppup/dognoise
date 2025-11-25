@@ -1,4 +1,4 @@
-def run(context):
+def run(context,**kwargs):
     # 1. 从背包里拿出 log 和 adb
     log = context.logger
     adb = context.adb

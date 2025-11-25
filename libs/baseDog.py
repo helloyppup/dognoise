@@ -56,3 +56,49 @@ class BaseDog(threading.Thread):
     def working(self):
 
         raise NotImplementedError("必须在子类实现 working 方法")
+
+    def alert(self, msg):
+        """
+         统一报警接口
+        子类只需调用 self.alert("发现异常xxx")，父类负责根据配置决定怎么做。
+        """
+        # 优先执行：用户传入的自定义回调 (最高优先级)
+        # env.start("xxx", on_alert=lambda x: ...)
+        callback = self.kwargs.get("on_alert")
+        if callback and callable(callback):
+            try:
+                callback(msg)
+            except Exception as e:
+                logger.error(f"⚠️ [Dog] 回调执行失败: {e}")
+
+        # 兜底执行：配置化策略
+        # env.start("xxx", hook_strategy="stop")
+        strategy = self.kwargs.get("hook_strategy")
+        if strategy:
+            self._apply_strategy(strategy, msg)
+
+    def _apply_strategy(self, strategy, msg):
+        """内置的常见策略，免去写回调的麻烦"""
+
+        # 策略 A: 停车 (标记 has_crash)
+        if strategy == "stop":
+            self.context.data['has_crash'] = True
+            logger.error(f"🛑 [策略触发] 致命错误！已标记 has_crash。原因: {msg.strip()}")
+
+        # 策略 B: 截图 (调用 screenshot 积木)
+        elif strategy == "screenshot":
+            logger.warning(f"[策略触发] 正在截图留证... 原因: {msg.strip()}")
+            # screenshot
+            # 注意：积木文件名需确保存在，否则会报错
+            try:
+                self.context.run("screenshot", filename=f"alert_{int(time.time())}.png")
+            except Exception as e:
+                logger.error(f"截图积木调用失败: {e}")
+
+        # 策略 C: 仅标记 (Soft Failure)
+        elif strategy == "mark":
+            self.context.data['has_failure'] = True
+            logger.warning(f"🚩 [策略触发] 已标记 has_failure: {msg.strip()}")
+
+    def working(self):
+        raise NotImplementedError("必须在子类实现 working 方法")

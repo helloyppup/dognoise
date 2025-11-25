@@ -37,7 +37,7 @@ class RunnerDog:
                     count += 1
         logger.info(f"scan完成，找到{count}球球🥎")
 
-    def run(self,keyword,reload=False):
+    def run(self,keyword,reload=False,**kwargs):
         """
         play ball~!
         :param self:
@@ -76,7 +76,7 @@ class RunnerDog:
                 if keyword not in self.module_cache:
                     # 如果符合要求且不在缓存池，直接加入缓存池，后续如果还有就不需要重复加载了
                     self.module_cache[keyword] = module
-                return module.run(context)
+                return module.run(context,**kwargs)
             else:
                 logger.warning(f"{keyword} 未定义run，狗都不看")
                 return None
