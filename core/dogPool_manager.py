@@ -48,7 +48,21 @@ class DogPoolManager:
 
         if file_path and os.path.exists(file_path):
             logger.info(f"{dog_name}<狗叼回来一些东西...>{file_path}")
-            allure.attach.file(file_path, name=f"{dog_name}_log", attachment_type=allure.attachment_type.ANY)
+
+            ext = os.path.splitext(file_path)[1].lower()
+
+            if ext == ".csv":
+                attach_type = allure.attachment_type.CSV
+            elif ext == ".png" or ext == ".jpg":
+                attach_type = allure.attachment_type.PNG
+            elif ext == ".json":
+                attach_type = allure.attachment_type.JSON
+            else:
+                attach_type = allure.attachment_type.TEXT  # 默认当作文本展示
+
+            # 使用智能匹配的类型
+            allure.attach.file(file_path, name=f"{dog_name}_output", attachment_type=attach_type)
+
 
 
     def stop_all(self):
