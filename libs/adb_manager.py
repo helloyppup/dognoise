@@ -82,27 +82,34 @@ class ADBManager:
 
     def get_logcat(self, output_path, grep=None):
         """
-        抓取当前缓冲区日志并保存
-        :param output_path: 保存路径
-        :param grep: 过滤关键字 (可选)
+        输出logcat 直接将流重定向到文件，不占用内存
         """
-        cmd = "logcat -d"  # -d 表示 dump 当前日志后退出，不阻塞
+        cmd = "logcat -d"
         if grep:
             cmd += f" | grep '{grep}'"
 
-        # 将日志重定向到文件
-        full_cmd = f"{cmd} > {output_path}"
-        # 注意：这里涉及到重定向 >，建议直接用 shell=True 的 run_cmd
-        # 但由于 run_cmd 内部是 subprocess.run，重定向在某些系统可能需要特殊处理
-        # 先获取内容再写文件
+        # 手动组装带前缀的完整命令
+        prefix = f"adb -s {self.device_id}" if self.device_id else "adb"
+        full_cmd = f"{prefix} {cmd}"
 
-        content = self.run_cmd(cmd)
-        if content:
+        try:
+            logger.info(f"正在抓取 Logcat 到文件: {output_path}")
+
+            # 打开文件句柄，作为 stdout 的接收端
             with open(output_path, "w", encoding="utf-8", errors="ignore") as f:
-                f.write(content)
-            logger.info(f"Logcat 已保存: {output_path}")
-            return True
-        return False
+                # 执行命令，stdout=f 表示直接写进文件
+                result = subprocess.run(full_cmd, shell=True, stdout=f, stderr=subprocess.PIPE)
+            # 检查结果
+            if result.returncode == 0:
+                logger.info(f"✅ Logcat 已保存: {output_path}")
+                return True
+            else:
+                logger.error(f" Logcat 保存失败")
+                return False
+
+        except Exception as e:
+            logger.error(f"Logcat 执行异常: {e}")
+            return False
 
     def ping_gateway(self, target="8.8.8.8", count=4):
         """

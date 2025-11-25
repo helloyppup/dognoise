@@ -1,6 +1,8 @@
 # 核心上下文
 import os
 
+from scipy.stats import kappa4
+
 from core.air_runner import AirRunner
 from libs.logger import logger
 from libs.adb_manager import ADBManager
@@ -113,17 +115,13 @@ class TestContext:
     def run(self, keyword,**kwargs):
         if keyword in self.runner.action_map:
             # 如果有传参，临时存入 data
-            if kwargs:
-
-                return self.runner.run(keyword)
+                return self.runner.run(keyword,**kwargs)
 
         #查找 Airtest 脚本 (AirRunner)
         # AirRunner 初始化时会扫描文件夹并存入 script_map
         if keyword in self.air.script_map:
             # Airtest 脚本通常依赖 context.data 传参
-            if kwargs:
-
-                return self.air.run(keyword)
+                return self.air.run(keyword,**kwargs)
 
 
         self.logger.error(f" 找不到积木: [{keyword}] (未在 actions/ 或 air_scripts/ 中发现)")
