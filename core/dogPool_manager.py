@@ -42,7 +42,7 @@ class DogPoolManager:
             logger.warning(f"<<dog不存在>>{dog_name} <无法停止运行>")
             return
 
-        # 1. 停止狗
+        # 1. 停止狗 (触发 kill process)
         file_path = dog.stop()
         del self.active_dog[dog_name]
 
@@ -53,8 +53,10 @@ class DogPoolManager:
             # 智能推断类型
             att_type = self._infer_attachment_type(file_path)
 
-            # 🔥【策略分流】
-            # 📷 场景 A: 图片 -> 上传原图 (为了在报告里直接看图)
+            # 🔥【核心修复】策略分流
+            # 只有图片才读内存，Log文件只贴路径！
+
+            # 📷 场景 A: 图片 -> 读取并上传原图
             if att_type in [allure.attachment_type.PNG, allure.attachment_type.JPG]:
                 try:
                     with open(file_path, "rb") as f:
@@ -63,11 +65,14 @@ class DogPoolManager:
                 except Exception as e:
                     logger.error(f"图片上传失败: {e}")
 
-            # 📝 场景 B: 日志/视频/大文件 -> 只上传路径字符串 (解决 OOM 问题)
+            # 📝 场景 B: 日志/其他 -> 只上传路径字符串 (彻底解决 OOM 问题)
             else:
                 # 获取绝对路径，方便复制
                 abs_path = os.path.abspath(file_path)
-                note = f"📂 文件过大，未直接展示。\n\n请在本地查看:\n{abs_path}"
+                # 构造一段提示文本
+                note = f"📂 文件过大，为防止报告崩溃，未直接展示。\n\n请在本地查看:\n{abs_path}"
+
+                # ⚠️ 注意：这里上传的是 note 变量，不是文件内容！
                 allure.attach(
                     note,
                     name=f"🔗 路径_{dog_name}",
