@@ -29,6 +29,7 @@ class Dog(BaseDog):
 
         device_id = self.context.adb.device_id
         cmd_prefix = f"adb -s {device_id}" if device_id else "adb"
+        subprocess.run(f"{cmd_prefix} logcat -c", shell=True)
         cmd = f"{cmd_prefix} logcat -v time"
 
         logger.info(f"🐕 [LogMonitor] 开始监听: {filename}")
