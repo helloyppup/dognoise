@@ -3,3 +3,4 @@ allure-pytest
 pyserial
 PyYAML
 airtest
+requests

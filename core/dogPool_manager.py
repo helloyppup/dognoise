@@ -68,8 +68,6 @@ class DogPoolManager:
                 # 获取绝对路径，方便复制
                 abs_path = os.path.abspath(file_path)
                 note = f"📂 文件过大，未直接展示。\n\n请在本地查看:\n{abs_path}"
-
-                # 上传一段纯文本说明
                 allure.attach(
                     note,
                     name=f"🔗 路径_{dog_name}",
