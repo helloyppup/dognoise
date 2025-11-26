@@ -40,7 +40,7 @@ class AirRunner:
 
         logger.info(f"✅ 扫描完成，找到 {count} 个 Airtest 脚本")
 
-    def run(self, keyword):
+    def run(self, keyword,**kwargs):
         """
         执行指定的 Airtest 脚本
         """

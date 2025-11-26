@@ -39,35 +39,39 @@ class DogPoolManager:
     def stop(self, dog_name):
         dog = self.active_dog.get(dog_name)
         if not dog:
+            logger.warning(f"<<dog不存在>>{dog_name} <无法停止运行>")
             return
 
-        # 1. 停止狗 (这会触发 kill process)
+        # 1. 停止狗 (触发 kill process)
         file_path = dog.stop()
-
-        # 从活动列表移除
         del self.active_dog[dog_name]
 
+        # 2. 处理附件
         if file_path and os.path.exists(file_path):
             logger.info(f"{dog_name}<狗叼回来一些东西...>{file_path}")
 
-            # 🟢【Plan B】暴力读取法：自己读出来，再贴上去
+            # 智能推断类型
+            att_type = self._infer_attachment_type(file_path)
+
             try:
-                # 尝试读取文件内容
-                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                # 🔥【核心修改】暴力读取法 (Plan B)
+                # 直接读取二进制数据 (rb)，这样无论是 Log 还是 图片 都能通用！
+                with open(file_path, "rb") as f:
                     content = f.read()
 
-                # 如果内容不为空，就上传
-                if content.strip():
+                # 只有内容不为空才上传
+                if content:
                     allure.attach(
-                        content,
-                        name=f"{dog_name}_log",
-                        attachment_type=allure.attachment_type.TEXT
+                        content,  # 传二进制数据
+                        name=f"{dog_name}_产物",
+                        attachment_type=att_type
                     )
+                    logger.info(f"✅ 附件已上传 ({len(content)} bytes)")
                 else:
-                    logger.warning(f"⚠️ 狗叼回来的文件是空的: {file_path}")
+                    logger.warning(f"⚠️ 文件是空的，跳过上传: {file_path}")
 
             except Exception as e:
-                logger.error(f"❌ 读取附件失败（可能是文件被占用了）: {e}")
+                logger.error(f"❌ 读取附件失败: {e}")
 
 
 
