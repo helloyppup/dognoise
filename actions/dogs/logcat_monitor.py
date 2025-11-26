@@ -6,65 +6,75 @@ from libs.logger import logger
 
 
 class Dog(BaseDog):
-    # 1. 🔥【新增】初始化方法，注册 self.process
     def __init__(self, context, *args, **kwargs):
         super().__init__(context, *args, **kwargs)
-        self.process = None  # 先占个位
+        self.process = None  # 1. 初始化进程对象
 
     def working(self):
-        # ... 参数获取 ...
+        """
+        长任务模式：启动 logcat 进程，持续读取流
+        """
         keywords = self.kwargs.get("keywords", [])
-        if isinstance(keywords, str): keywords = [keywords]
+        if isinstance(keywords, str):
+            keywords = [keywords]
 
+        # 准备文件路径
         filename = self.kwargs.get("filename", f"monitor_{time.strftime('%H%M%S')}.log")
         log_dir = os.path.join(self.context.root_dir, "outputs", "logs")
-        if not os.path.exists(log_dir): os.makedirs(log_dir)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
 
-        # 🔥【关键】必须把路径给父类，否则 Allure 找不到文件！
+        # 2. 【关键】把路径赋值给父类，否则管家拿不到路径
         self.output_file = os.path.join(log_dir, filename)
 
         device_id = self.context.adb.device_id
         cmd_prefix = f"adb -s {device_id}" if device_id else "adb"
         cmd = f"{cmd_prefix} logcat -v time"
 
-        logger.info(f"🐕 [LogMonitor] 开始: {filename}")
+        logger.info(f"🐕 [LogMonitor] 开始监听: {filename}")
 
-        # 2. 🔥【修改】把 process 变成 self.process
+        # 3. 启动子进程
         self.process = subprocess.Popen(
-            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True, encoding='utf-8', errors='ignore'
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding='utf-8',
+            errors='ignore'
         )
 
         try:
             with open(self.output_file, "w", encoding="utf-8") as f:
                 while True:
-                    if self.is_stopped(): break
+                    # 检查停止信号
+                    if self.is_stopped():
+                        break
 
-                    # 3. 🔥【修改】这里也要用 self.process
+                    # 4. 读取一行 (如果 stop() 杀了进程，这里会立刻返回空字符串)
                     line = self.process.stdout.readline()
 
+                    # 进程已死且无数据，退出循环
                     if not line and self.process.poll() is not None:
                         break
 
                     if line:
                         f.write(line)
-                        f.flush()
+                        f.flush()  # 实时写入
 
-                        # 关键字监控逻辑
                         for kw in keywords:
                             if kw in line:
-                                logger.error(f"🚨 发现异常: {kw}")
+                                logger.error(f"🚨 [LogMonitor] 捕获异常: {kw}")
                                 self.alert(line)
 
         except Exception as e:
-            logger.error(f"🐕 [Monitor] Error: {e}")
+            logger.error(f"🐕 [LogMonitor] 监听崩溃: {e}")
         finally:
             self._kill_process()
-            logger.info("🐕 [Monitor] 停止")
+            logger.info("🐕 [LogMonitor] 停止工作")
 
     def _kill_process(self):
         """辅助清理函数"""
-        # 4. 🔥【修改】这里访问 self.process 就不报错了
         if self.process and self.process.poll() is None:
             try:
                 self.process.terminate()
@@ -73,12 +83,8 @@ class Dog(BaseDog):
                 pass
 
     def stop(self):
-        # 必须先杀进程 (拔网线)
-        if self.process and self.process.poll() is None:
-            try:
-                self.process.terminate()
-                self.process.kill()
-            except:
-                pass
-        # 再调用父类 stop (等待线程结束 + 关闭文件)
+        # 1. 先杀进程！这就相当于强制让 readline() 返回
+        self._kill_process()
+
+        # 2. 再调用父类 stop 等待线程安全退出 (释放文件锁)
         return super().stop()
