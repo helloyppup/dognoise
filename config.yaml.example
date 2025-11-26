@@ -1,0 +1,16 @@
+# config.yaml.example
+# 这是一个模版，请复制一份重命名为 config.yaml 并填入你的真实信息
+
+project_name: "Dognoise"
+
+serials:
+  nano:
+    port: "COM3"  # 请修改为实际端口
+    baudrate: 9600
+
+adb_devices:
+  main_phone: "YOUR_DEVICE_ID"
+
+feishu:
+  webhook: "" # 留空，或者在本地 config.yaml 里填写真实地址
+  secret: ""

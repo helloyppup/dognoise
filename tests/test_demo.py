@@ -46,10 +46,11 @@ class TestDemo:
 
         index=5
         env.start("logcat_monitor")
+        env.start("Perf_dog")
         while index>0:
 
             index-=1
-            env.run("ctrl_servo")
+            # env.run("ctrl_servo")
             sleep(1)
 
         # res=env.run("testdemon")
@@ -58,6 +59,7 @@ class TestDemo:
         # print(res)
 
         env.stop("logcat_monitor")
+        env.stop("Perf_dog")
         env.run("feishu_notify", message="测试完成")
         assert True
         # if isinstance(res, dict):

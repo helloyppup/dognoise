@@ -33,6 +33,13 @@ class RunnerDog:
                     keyword = file[:-3]
                     full_path = os.path.join(root,file)
 
+                    if keyword in self.action_map:
+                        existing_path = self.action_map[keyword]
+                        logger.warning(f"⚠️ 发现同名积木冲突: [{keyword}]")
+                        logger.warning(f"  保留旧: {existing_path}")
+                        logger.warning(f"  忽略新: {full_path}")
+                        continue
+
                     self.action_map[keyword]=full_path
                     count += 1
         logger.info(f"scan完成，找到{count}球球🥎")
@@ -68,7 +75,10 @@ class RunnerDog:
                 # 一个空python模块对象，实际上啥也还没定义
                 module = importlib.util.module_from_spec(spec)
                 # 注册到系统 这一步通过字典存储，如果之后也引入这个名称的模块，后加载的会覆盖，防止重复导入
-                sys.modules[keyword] = module
+
+                safe_module_name = f"actions.{keyword}"
+                sys.modules[safe_module_name] = module
+
                 # 把module丢到容器里
                 spec.loader.exec_module(module)
 

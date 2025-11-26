@@ -79,26 +79,32 @@ class Dog(BaseDog):
             logger.error(f"🐕 [PerfDog] 监控崩溃: {e}")
 
     def _get_cpu(self, pkg):
-        """获取 CPU 使用率 (兼容性写法)"""
+        """
+        获取 CPU 使用率
+        【优化】改用 dumpsys cpuinfo，兼容性更好
+        """
         try:
-            # 方法 A: dumpsys cpuinfo (较慢但准确)
-            # cmd = "dumpsys cpuinfo"
+            # dumpsys cpuinfo 输出格式通常包含：
+            # 0.5% 12345/com.package.name: 0.3% user + 0.1% kernel
+            cmd = f"dumpsys cpuinfo | grep {pkg}"
+            output = self.context.adb.shell(cmd)
 
-            # 方法 B: top (较快)
-            # -n 1: 刷新一次, -s cpu: 按cpu排序
-            cmd = f"top -n 1 -s cpu | grep {pkg}"
-            output = self.context.adb.run_cmd(cmd)
-
-            # 解析 top 输出 (不同安卓版本格式不一样，这里做个简单提取)
-            # 假设输出类似: 1234 system 20 0 10% R ... com.example
             if output:
-                # 提取百分号前面的数字
-                match = re.search(r'(\d+)%', output)
-                if match:
-                    return int(match.group(1))
-            return 0
-        except:
-            return 0
+                output = output.strip()
+                # 策略：找到包含包名的那一行，提取最前面的百分比
+                for line in output.split('\n'):
+                    if pkg in line:
+                        # 移除空格，方便正则提取
+                        # 例子: "0.5%12345/com.pkg..."
+                        line = line.strip()
+                        match = re.search(r'^(\d+(\.\d+)?)%', line)
+                        if match:
+                            return float(match.group(1))
+            return 0.0
+        except Exception as e:
+            # 调试的时候打开，平时可以静默
+            # logger.warning(f"CPU获取失败: {e}")
+            return 0.0
 
     def _get_mem(self, pkg):
         """获取 Total PSS 内存 (MB)"""

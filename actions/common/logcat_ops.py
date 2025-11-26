@@ -62,11 +62,23 @@ def run(context, action="find", keyword=None, filename=None, device_name=None, *
 
         if content and keyword in content:
             logger.info(f"✅ 在日志中找到了: '{keyword}'")
-            return True
+            return {
+                "status": True,
+                "data": None,
+                "msg": ""
+            }
         else:
             logger.warning(f"日志中未发现: '{keyword}'")
-            return False
+            return {
+                "status": False,
+                "data": None,
+                "msg": ""
+            }
 
     else:
         logger.error(f"不支持的操作: {action}")
-        return False
+        return {
+            "status": False,
+            "data": None,
+            "msg": ""
+        }

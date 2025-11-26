@@ -23,9 +23,9 @@ class TestContext:
         self.config = self._load_config()
 
     def _load_config(self):
-        config_path = os.path.join(self.root_dir, "config.yaml")
+        config_path = os.path.join(self.root_dir, "config.yaml.example")
         if not os.path.exists(config_path):
-            self.logger.warning("⚠️ 找不到 config.yaml，将使用默认配置！")
+            self.logger.warning("⚠️ 找不到 config.yaml.example，将使用默认配置！")
             return {}
 
         try:

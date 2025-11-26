@@ -42,9 +42,12 @@ class DogPoolManager:
             logger.warning(f"<<dog不存在>>{dog_name} <无法停止运行>")
             return
 
-        # 1. 停止狗 (触发 kill process)
-        file_path = dog.stop()
-        del self.active_dog[dog_name]
+        #停止狗 (触发 kill process)
+        try:
+            file_path=dog.stop()
+        finally:
+            if dog_name in self.active_dog:
+                del self.active_dog[dog_name]
 
         # 2. 处理产物
         if file_path and os.path.exists(file_path):
