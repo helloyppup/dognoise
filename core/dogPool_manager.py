@@ -46,32 +46,35 @@ class DogPoolManager:
         file_path = dog.stop()
         del self.active_dog[dog_name]
 
-        # 2. 处理附件
+        # 2. 处理产物
         if file_path and os.path.exists(file_path):
             logger.info(f"{dog_name}<狗叼回来一些东西...>{file_path}")
 
             # 智能推断类型
             att_type = self._infer_attachment_type(file_path)
 
-            try:
-                # 🔥【核心修改】暴力读取法 (Plan B)
-                # 直接读取二进制数据 (rb)，这样无论是 Log 还是 图片 都能通用！
-                with open(file_path, "rb") as f:
-                    content = f.read()
+            # 🔥【策略分流】
+            # 📷 如果是图片：为了报告好看，依然上传原图
+            if att_type in [allure.attachment_type.PNG, allure.attachment_type.JPG]:
+                try:
+                    with open(file_path, "rb") as f:
+                        content = f.read()
+                    allure.attach(content, name=f"{dog_name}_截图", attachment_type=att_type)
+                except Exception as e:
+                    logger.error(f"图片上传失败: {e}")
 
-                # 只有内容不为空才上传
-                if content:
-                    allure.attach(
-                        content,  # 传二进制数据
-                        name=f"{dog_name}_产物",
-                        attachment_type=att_type
-                    )
-                    logger.info(f"✅ 附件已上传 ({len(content)} bytes)")
-                else:
-                    logger.warning(f"⚠️ 文件是空的，跳过上传: {file_path}")
+            # 📝 如果是日志/其他：只上传路径字符串 (解决 OOM 问题)
+            else:
+                # 这里的 content 是一段纯文本，告诉看报告的人去哪里找文件
+                # 建议用绝对路径，方便复制
+                abs_path = os.path.abspath(file_path)
+                note = f"📂 文件过大，未直接展示。\n\n请在本地查看:\n{abs_path}"
 
-            except Exception as e:
-                logger.error(f"❌ 读取附件失败: {e}")
+                allure.attach(
+                    note,
+                    name=f"🔗 路径_{dog_name}",
+                    attachment_type=allure.attachment_type.TEXT
+                )
 
 
 

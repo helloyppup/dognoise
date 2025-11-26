@@ -18,3 +18,9 @@ serials:
 # ADB设备池
 adb_devices:
   main_phone: "10ADBA2S4X001G1"
+
+feishu:
+  # Webhook 地址
+  webhook: "https://open.feishu.cn/open-apis/bot/v2/hook/e162c2e1-d3b6-4211-9a23-58ff22c76986"
+  # (可选) 如果开启了加签安全验证，填入你的 SEC 开头的密钥
+  secret: "EPuMiGBOmThcycY0OlzsDh"

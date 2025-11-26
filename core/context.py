@@ -4,6 +4,7 @@ import os
 from scipy.stats import kappa4
 
 from core.air_runner import AirRunner
+from libs.feishu_manager import FeishuManager
 from libs.logger import logger
 from libs.adb_manager import ADBManager
 from core.runner import RunnerDog
@@ -110,6 +111,17 @@ class TestContext:
         用法: env.air.run("login")
         """
         return AirRunner(self)
+
+    @cached_property
+    def feishu(self):
+        """
+        【新增】飞书机器人管理器
+        """
+        conf = self.config.get("feishu", {})
+        return FeishuManager(
+            webhook=conf.get("webhook"),
+            secret=conf.get("secret")
+        )
 
 
     def run(self, keyword,**kwargs):

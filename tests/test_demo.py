@@ -54,11 +54,11 @@ class TestDemo:
 
         # res=env.run("testdemon")
         # 再打印5slog
-        sleep(5)
+        # sleep(5)
         # print(res)
 
         env.stop("logcat_monitor")
-
+        env.run("feishu_notify", message="测试完成")
         assert True
         # if isinstance(res, dict):
         #     assert res.get('status') == "success"
