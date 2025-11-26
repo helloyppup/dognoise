@@ -36,28 +36,38 @@ class DogPoolManager:
         except Exception as e:
             logger.error(f"<<启动狗失败>>{dog_name}---{e}")
 
-    def stop(self,dog_name):
-        dog=self.active_dog.get(dog_name)
+    def stop(self, dog_name):
+        dog = self.active_dog.get(dog_name)
         if not dog:
-            logger.warning(f"<<dog不存在>>{dog_name} <无法停止运行>")
             return
 
+        # 1. 停止狗 (这会触发 kill process)
         file_path = dog.stop()
 
+        # 从活动列表移除
         del self.active_dog[dog_name]
 
         if file_path and os.path.exists(file_path):
             logger.info(f"{dog_name}<狗叼回来一些东西...>{file_path}")
 
-            # 🟢【关键修改】自动判断类型
-            att_type = self._infer_attachment_type(file_path)
+            # 🟢【Plan B】暴力读取法：自己读出来，再贴上去
+            try:
+                # 尝试读取文件内容
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
 
-            # 使用推断出的类型上传
-            allure.attach.file(
-                file_path,
-                name=f"{dog_name}_产物",
-                attachment_type=att_type
-            )
+                # 如果内容不为空，就上传
+                if content.strip():
+                    allure.attach(
+                        content,
+                        name=f"{dog_name}_log",
+                        attachment_type=allure.attachment_type.TEXT
+                    )
+                else:
+                    logger.warning(f"⚠️ 狗叼回来的文件是空的: {file_path}")
+
+            except Exception as e:
+                logger.error(f"❌ 读取附件失败（可能是文件被占用了）: {e}")
 
 
 
