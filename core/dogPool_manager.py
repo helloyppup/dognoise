@@ -49,19 +49,15 @@ class DogPoolManager:
         if file_path and os.path.exists(file_path):
             logger.info(f"{dog_name}<狗叼回来一些东西...>{file_path}")
 
-            ext = os.path.splitext(file_path)[1].lower()
+            # 🟢【关键修改】自动判断类型
+            att_type = self._infer_attachment_type(file_path)
 
-            if ext == ".csv":
-                attach_type = allure.attachment_type.CSV
-            elif ext == ".png" or ext == ".jpg":
-                attach_type = allure.attachment_type.PNG
-            elif ext == ".json":
-                attach_type = allure.attachment_type.JSON
-            else:
-                attach_type = allure.attachment_type.TEXT  # 默认当作文本展示
-
-            # 使用智能匹配的类型
-            allure.attach.file(file_path, name=f"{dog_name}_output", attachment_type=attach_type)
+            # 使用推断出的类型上传
+            allure.attach.file(
+                file_path,
+                name=f"{dog_name}_产物",
+                attachment_type=att_type
+            )
 
 
 
@@ -70,4 +66,28 @@ class DogPoolManager:
         for name in list(self.active_dog.keys()):
             self.stop(name)
 
+    def _infer_attachment_type(self, file_path):
+        """
+        内部方法：根据文件后缀名，决定 Allure 的附件类型
+        """
+        # 获取后缀名 (如 .log, .png)
+        _, ext = os.path.splitext(file_path)
+        ext = ext.lower()
 
+        # 🗺️ 映射表：把后缀名映射到 Allure 类型
+        mapping = {
+            ".png": allure.attachment_type.PNG,
+            ".jpg": allure.attachment_type.JPG,
+            ".jpeg": allure.attachment_type.JPG,
+            ".txt": allure.attachment_type.TEXT,
+            ".log": allure.attachment_type.TEXT,
+            ".json": allure.attachment_type.JSON,
+            ".xml": allure.attachment_type.XML,
+            ".html": allure.attachment_type.HTML,
+            ".csv": allure.attachment_type.CSV,
+            ".mp4": allure.attachment_type.MP4,
+        }
+
+        # 如果找不到，默认用 TEXT (因为 TEXT 最安全，ANY 容易被忽略)
+        # 或者你可以把默认值改回 ANY，看你喜好
+        return mapping.get(ext, allure.attachment_type.TEXT)

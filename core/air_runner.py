@@ -40,7 +40,7 @@ class AirRunner:
 
         logger.info(f"✅ 扫描完成，找到 {count} 个 Airtest 脚本")
 
-    def run(self, keyword,**kwargs):
+    def run(self, keyword):
         """
         执行指定的 Airtest 脚本
         """
@@ -66,6 +66,7 @@ class AirRunner:
             # 全局可用env变量 但是只建议在air脚本用
             builtins.env = self.context
             builtins.args = kwargs
+            builtins.env = self.context
 
             # 加载路径 (using)
             using(script_path)
@@ -84,14 +85,11 @@ class AirRunner:
             # 更新缓存（虽然对 reload 来说不需要，但保持一致性）
             self.module_cache[keyword] = air_module
 
-            if hasattr(air_module,"__retval__"):
-                res = air_module.__retval__
-                logger.info(f"air脚本返回: {keyword} -> {res}")
-            else:
-                res=True
-                logger.info(f"air脚本返回: {keyword} -> {res}")
+            result=getattr(air_module, "__retval__",True)
 
-            return res
+
+            logger.info(f"✅ Airtest 脚本 [{keyword}] 执行完毕,执行结果{result}")
+            return result
 
         except Exception as e:
             logger.error(f"Airtest 脚本 [{keyword}] 执行崩溃: {e}")

@@ -14,9 +14,11 @@ class Dog(BaseDog):
         # 想要监听的关键字列表，例如 ["FATAL", "ANR", "CRASH"]
         on_alert_callback = self.kwargs.get("on_alert")
 
+
         keywords = self.kwargs.get("keywords", [])
         if isinstance(keywords, str):
             keywords = [keywords]
+
 
         # 保存的文件名
         filename = self.kwargs.get("filename", f"monitor_{time.strftime('%H%M%S')}.log")
