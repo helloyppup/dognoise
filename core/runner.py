@@ -86,7 +86,8 @@ class RunnerDog:
                 if keyword not in self.module_cache:
                     # 如果符合要求且不在缓存池，直接加入缓存池，后续如果还有就不需要重复加载了
                     self.module_cache[keyword] = module
-                return module.run(context,**kwargs)
+                raw_result=module.run(context,**kwargs)
+                return self._standardize_result(raw_result, keyword)
             else:
                 logger.warning(f"{keyword} 未定义run，狗都不看")
                 return None
@@ -104,3 +105,34 @@ class RunnerDog:
         count = len(self.module_cache)
         self.module_cache.clear()
         logger.info(f"🧹 积木缓存池已清空，释放了 {count} 个积木对象。")
+
+    def _standardize_result(self, raw, keyword):
+        """
+        无论积木返回什么，都给它整容成 {status, data, msg}
+        """
+        # 如果已经是标准字典，直接放行
+        if isinstance(raw, dict) and "status" in raw:
+            return raw
+
+        # 如果是布尔值 (True/False)
+        if isinstance(raw, bool):
+            return {
+                "status": raw,
+                "data": None,
+                "msg": f"[{keyword}] 返回了布尔值: {raw}"
+            }
+
+        # 如果是 None (没写 return)
+        if raw is None:
+            return {
+                "status": True,  # 默认算成功
+                "data": None,
+                "msg": f"[{keyword}] 执行完毕 (无返回值)"
+            }
+
+        # 其他情况 (字符串、数字、对象...)
+        return {
+            "status": True,
+            "data": raw,
+            "msg": f"[{keyword}] 返回了数据"
+        }
