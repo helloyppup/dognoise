@@ -27,6 +27,21 @@ def env():
     # 这里以后可以写：断开ADB连接、生成最终报告等
 
 
+@pytest.fixture(scope="function", autouse=True)
+def auto_cleanup_dogs(env):
+    """
+    【自动清场】
+    每个测试用例开始前：什么都不做
+    每个测试用例结束后：强制把所有狗收回来！
+    """
+    yield  # 这里是测试用例执行的时间
+
+    # --- 用例执行完后 ---
+    if hasattr(env, "dogs"):
+        # 停止所有狗，并自动上传附件到当前测试用例报告中
+        env.dogs.stop_all()
+
+
 def pytest_sessionfinish(session, exitstatus):
     """
     当整个测试会话结束（所有用例跑完）时，自动调用此钩子。
