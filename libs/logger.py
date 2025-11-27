@@ -2,6 +2,7 @@ import glob
 import logging
 import os
 import time
+from logging.handlers import TimedRotatingFileHandler
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_DIR = os.path.join(ROOT_DIR, 'outputs',"logs")
@@ -67,7 +68,14 @@ def get_logger(name="LegoFramework"):
         log_filename = f'test_{timestamp}.log'
         file_path = os.path.join(LOG_DIR, log_filename)
 
-        file_handler = logging.FileHandler(file_path, encoding='utf-8')
+
+        file_handler = TimedRotatingFileHandler(
+            filename=file_path,
+            when='MIDNIGHT',
+            interval=1,
+            backupCount=10,  # 只保留最近7天的
+            encoding='utf-8'
+        )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
