@@ -10,7 +10,7 @@ class ADBManager:
         :param device_id: 设备序列号或IP (例如 "192.168.1.101" 或 "emulator-5554")
         """
         self.device_id = device_id
-        # 如果是IP设备，记录下来以便断线重连
+        # 如果是IP设备，记录下来以便断线重连 非无线的无法重连
         self.is_network_device = "." in device_id if device_id else False
 
     def run_cmd(self, cmd, retry=1):
@@ -19,7 +19,7 @@ class ADBManager:
         :param cmd: 要执行的命令 (不含 'adb', 例如 'shell ls')
         :param retry: 失败重试次数，默认 1 次
         """
-        # 1. 组装命令前缀
+        # -s 指定某个设备
         prefix = f"adb -s {self.device_id}" if self.device_id else "adb"
         full_cmd = f"{prefix} {cmd}"
 
@@ -58,13 +58,13 @@ class ADBManager:
         """
         logger.info("执行 ADB 重连流程...")
 
-        # 1. 暴力重启 ADB Server
+        # 暴力重启 ADB Server ⚠️⚠️  此处会影响所有设备，需要优化
         subprocess.run("adb kill-server", shell=True)
         time.sleep(1)
         subprocess.run("adb start-server", shell=True)
         time.sleep(2)
 
-        # 2. 如果是网络设备，重新 connect
+        # 如果是网络设备，重新 connect
         if self.is_network_device and self.device_id:
             logger.info(f"正在重新连接网络设备: {self.device_id}")
             # 这里调用原生 adb connect，不走 self.run_cmd 避免死循环
@@ -84,6 +84,7 @@ class ADBManager:
         """
         输出logcat 直接将流重定向到文件，不占用内存
         """
+        # -d “Dump the log and exit”（倒出当前缓冲区的内容然后退出）
         cmd = "logcat -d"
         if grep:
             cmd += f" | grep '{grep}'"

@@ -1,8 +1,6 @@
 # 核心上下文
 import os
 
-from scipy.stats import kappa4
-
 from core.air_runner import AirRunner
 from libs.feishu_manager import FeishuManager
 from libs.logger import logger

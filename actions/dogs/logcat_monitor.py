@@ -84,7 +84,7 @@ class Dog(BaseDog):
             while True:
                 if self.is_stopped(): break
 
-                # --- 📅 切分检查逻辑 ---
+                # --- 切分检查逻辑 ---
                 # 只有日期变了（跨天）才切分
                 now_date = time.strftime("%Y%m%d")
                 if now_date != self.current_date:
@@ -101,8 +101,8 @@ class Dog(BaseDog):
 
                     for kw in keywords:
                         if kw in line:
-                            # 发现异常，不仅打印，还可以把异常写入一个单独的 error.log
-                            logger.error(f"🚨 [LogMonitor] 捕获异常: {kw}")
+                            # 把异常写入一个单独的 error.log
+                            logger.error(f"[LogMonitor] 捕获异常: {kw}")
                             self.alert(line)
 
         except Exception as e:
@@ -118,8 +118,13 @@ class Dog(BaseDog):
         if self.process and self.process.poll() is None:
             try:
                 self.process.terminate()
+                # 等待进程退出 注意这里会阻塞主线程
+                self.process.wait(timeout=0.2)
+
+            except subprocess.TimeoutExpired:
                 self.process.kill()
-            except:
+            except Exception as e:
+                logger.error(f"杀死进程出错---{e.msg}")
                 pass
 
     def stop(self):
